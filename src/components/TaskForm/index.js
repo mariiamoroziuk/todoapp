@@ -27,9 +27,7 @@ export default function CreateTask({reloadTasks, showMessage}){
 
     const onSubmit = event => {
         event.preventDefault();
-        if(!localStorage.getItem('token')){
-            modalActions.openLoginModal(true)(dispatch);
-        }else{
+
         if (modal==='create') {
             const form = new FormData();
             form.append("username", data.username);
@@ -40,15 +38,19 @@ export default function CreateTask({reloadTasks, showMessage}){
                 .then(() => reloadTasks());
             showMessage('new task was created')
         } else {
-            const form = new FormData();
-            form.append("token", localStorage.getItem('token'));
-            form.append("status", data.status||modal.status);
-            form.append("text", data.text||modal.text);
-            (new TasksAPI())
-                .updateTask(form, modal.id)
-                .then(()=>reloadTasks());
-            showMessage('task was updated')
-        }}
+            if(!localStorage.getItem('token')){
+                modalActions.openLoginModal(true)(dispatch);
+            }else {
+                const form = new FormData();
+                form.append("token", localStorage.getItem('token'));
+                form.append("status", data.status || modal.status);
+                form.append("text", data.text || modal.text);
+                (new TasksAPI())
+                    .updateTask(form, modal.id)
+                    .then(() => reloadTasks());
+                showMessage('task was updated')
+            }
+        }
         closeModal();
         setData({'username': '', 'email': '', 'text': '', 'status': ''})
     };
